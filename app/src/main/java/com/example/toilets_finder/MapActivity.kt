@@ -35,8 +35,7 @@ class MapActivity : AppCompatActivity(), LocationListener {
         map = findViewById(R.id.map)
 
         map.zoomController.setVisibility(org.osmdroid.views.CustomZoomButtonsController.Visibility.NEVER)
-        map.isClickable = false
-        map.setMultiTouchControls(false)
+        map.setMultiTouchControls(true)
 
         // Vérification des permissions
         if (ContextCompat.checkSelfPermission(
@@ -110,11 +109,12 @@ class MapActivity : AppCompatActivity(), LocationListener {
         val userMarker = Marker(map)
         userMarker.position = userPoint
         userMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-        userMarker.title = "Vous êtes ici"
+        //userMarker.title = "t'es là"
+        userMarker.setOnMarkerClickListener { _, _ -> true }
         map.overlays.clear()
         map.overlays.add(userMarker)
 
-        Toast.makeText(this, "Position mise à jour : $latitude, $longitude", Toast.LENGTH_SHORT).show()
+        // Toast.makeText(this, "Position mise à jour : $latitude, $longitude", Toast.LENGTH_SHORT).show()
     }
 
     override fun onLocationChanged(location: Location) {
