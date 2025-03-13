@@ -33,7 +33,10 @@ class MapActivity : AppCompatActivity(), LocationListener {
 
         // Initialisation de la carte
         map = findViewById(R.id.map)
-        map.setMultiTouchControls(true)
+
+        map.zoomController.setVisibility(org.osmdroid.views.CustomZoomButtonsController.Visibility.NEVER)
+        map.isClickable = false
+        map.setMultiTouchControls(false)
 
         // Vérification des permissions
         if (ContextCompat.checkSelfPermission(
