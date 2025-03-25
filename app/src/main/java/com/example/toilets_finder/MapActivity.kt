@@ -4,10 +4,13 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.Bitmap
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
@@ -40,16 +43,20 @@ class MapActivity : AppCompatActivity(), LocationListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
 
+        // get the "Back" button, for going back to the home
         val buttonBack: Button = findViewById(R.id.backButton)
         buttonBack.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
 
+        // Configuration of the map
         Configuration.getInstance().userAgentValue = packageName
         map = findViewById(R.id.map)
+        // Uncomment/Comment the line below for hide/show the zoom buttons
         // map.zoomController.setVisibility(org.osmdroid.views.CustomZoomButtonsController.Visibility.NEVER)
 
+        // Check is the user location is allowed, else ask it
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             setupLocation()
         } else {
@@ -63,33 +70,49 @@ class MapActivity : AppCompatActivity(), LocationListener {
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         try {
+            // Get the enabled status of the GPS and the Network
             val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
             val isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
 
+            // Check if GPS or Network are enabled and get the position of the user, if both are not enabled display an error.
             if (!isGpsEnabled && !isNetworkEnabled) {
                 Toast.makeText(this, "Aucun service de localisation disponible", Toast.LENGTH_SHORT).show()
                 updateMapLocation(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
             } else {
                 if (isGpsEnabled) {
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_UPDATE, MIN_DISTANCE_UPDATE, this)
+                    locationManager.requestLocationUpdates(
+                        LocationManager.GPS_PROVIDER,
+                        MIN_TIME_UPDATE,
+                        MIN_DISTANCE_UPDATE,
+                        this
+                    )
+                    val lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                    if (lastKnownLocation != null) {
+                        updateMapLocation(lastKnownLocation.latitude, lastKnownLocation.longitude)
+                    }
                 }
-                if (isNetworkEnabled) {
-                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_UPDATE, MIN_DISTANCE_UPDATE, this)
+                else {
+                    locationManager.requestLocationUpdates(
+                        LocationManager.NETWORK_PROVIDER,
+                        MIN_TIME_UPDATE,
+                        MIN_DISTANCE_UPDATE,
+                        this
+                    )
+                    val lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+                    if (lastKnownLocation != null) {
+                        updateMapLocation(lastKnownLocation.latitude, lastKnownLocation.longitude)
+                    }
                 }
-
-                val lastKnownLocation: Location? = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-                    ?: locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-
-                lastKnownLocation?.let {
-                    updateMapLocation(it.latitude, it.longitude)
-                } ?: updateMapLocation(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
             }
         } catch (e: SecurityException) {
             e.printStackTrace()
         }
     }
 
+    // Delete the last position of the user and add the new position
     private fun updateMapLocation(latitude: Double, longitude: Double) {
+        // Actually the coordinate is in the center of Paris.
+        // If you want the truth coordinate of your device, replace DEFAULT_LATITUDE and DEFAULT_LATITUDE bye latitude and longitude
         val userPoint = GeoPoint(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
         map.controller.setZoom(15.0)
         map.controller.setCenter(userPoint)
@@ -103,10 +126,14 @@ class MapActivity : AppCompatActivity(), LocationListener {
         map.overlays.add(userMarker)
     }
 
+    // Function from OSM (the map)
+    // The function is called every MIN_TIME_UPDATE and MIN_DISTANCE_UPDATE
     override fun onLocationChanged(location: Location) {
         updateMapLocation(location.latitude, location.longitude)
     }
 
+    // Function from OSM (the map)
+    // The function is handling the response of the user when we ask him for the localisation permissions
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
@@ -119,14 +146,17 @@ class MapActivity : AppCompatActivity(), LocationListener {
         }
     }
 
+    // When the map activity is stopped, stop to update the map and the localisation of the user
     override fun onDestroy() {
         super.onDestroy()
         map.onDetach()
         locationManager.removeUpdates(this)
     }
 
+    // Create the 7 API Url we need.
+    // The API can only give the data 100 by 100, for 623 we need 7 requests
     private fun getApiUrl() {
-        for (i in 0 until 6) {
+        for (i in 0 until 7) {
             val apiUrl = "https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/sanisettesparis/records?limit=100&offset=" + 100 * i
             fetchToiletData(apiUrl)
         }
@@ -163,10 +193,17 @@ class MapActivity : AppCompatActivity(), LocationListener {
         }
     }
 
+    // Add a marker on the map with the latitude and longitude in params.
+    // Change the base icon of the marker for a custom icon ans resize it.
     private fun addToiletMarker(lat: Double, lon: Double, address: String) {
         val toiletMarker = Marker(map)
         toiletMarker.position = GeoPoint(lat, lon)
-        toiletMarker.title = "Toilette : $address"
+        toiletMarker.title = address
+
+        val customIcon = ContextCompat.getDrawable(this, R.drawable.ic_toilet_marker) as BitmapDrawable
+        val resizedIcon = Bitmap.createScaledBitmap(customIcon.bitmap, 35, 58, false)
+        toiletMarker.icon = BitmapDrawable(resources, resizedIcon)
+
         map.overlays.add(toiletMarker)
     }
 }
