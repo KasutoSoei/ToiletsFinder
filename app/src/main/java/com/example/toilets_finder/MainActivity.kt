@@ -27,5 +27,7 @@ class MainActivity : AppCompatActivity() {
             )
             startActivity(intent)
         })
+
+        Supabase.init()
     }
 }

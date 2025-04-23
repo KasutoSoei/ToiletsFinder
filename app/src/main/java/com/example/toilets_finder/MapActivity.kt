@@ -1,5 +1,9 @@
 package com.example.toilets_finder
 
+import io.github.jan.supabase.postgrest.from
+import com.example.toilets_finder.Supabase
+
+
 import android.Manifest
 import android.content.Context
 import android.content.Intent
@@ -39,6 +43,8 @@ class MapActivity : AppCompatActivity(), LocationListener {
     private val DEFAULT_LATITUDE = 48.8566
     private val DEFAULT_LONGITUDE = 2.3522
 
+    //
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
@@ -64,6 +70,8 @@ class MapActivity : AppCompatActivity(), LocationListener {
         }
 
         getApiUrl()
+        LocalToiletRepository.init(this)
+
     }
 
     private fun setupLocation() {
@@ -192,6 +200,39 @@ class MapActivity : AppCompatActivity(), LocationListener {
             }
         }
     }
+    //show an overlay that allow us to save data in the database (supabase)
+    private fun showToiletActionsDialog(toiletId: String) {
+        val previousAction = LocalToiletRepository.getAction(toiletId)
+
+        val options = arrayOf("Ajouter aux favoris", "Blacklister", "Noter", "Commenter")
+        val selected = BooleanArray(options.size)
+
+        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
+        builder.setTitle("Toilette : $toiletId")
+
+        builder.setMultiChoiceItems(options, selected) { _, index, isChecked ->
+            selected[index] = isChecked
+        }
+
+        builder.setPositiveButton("Valider") { _, _ ->
+            val newAction = ToiletAction(
+                toiletId = toiletId,
+                isFavorite = selected[0],
+                isBlacklisted = selected[1]
+            )
+
+            LocalToiletRepository.saveAction(newAction)
+            sendActionToSupabase(newAction)
+
+            Toast.makeText(this, "Action enregistrée !", Toast.LENGTH_SHORT).show()
+        }
+
+        builder.setNegativeButton("Annuler", null)
+        builder.show()
+    }
+
+
+
 
     // Add a marker on the map with the latitude and longitude in params.
     // Change the base icon of the marker for a custom icon ans resize it.
@@ -203,7 +244,29 @@ class MapActivity : AppCompatActivity(), LocationListener {
         val customIcon = ContextCompat.getDrawable(this, R.drawable.ic_toilet_marker) as BitmapDrawable
         val resizedIcon = Bitmap.createScaledBitmap(customIcon.bitmap, 35, 58, false)
         toiletMarker.icon = BitmapDrawable(resources, resizedIcon)
+        toiletMarker.setOnMarkerClickListener { marker, _ ->
+            val toiletId = address
+            showToiletActionsDialog(toiletId)
+            true
+        }
 
         map.overlays.add(toiletMarker)
+
+    }
+}
+//send the data of the overlay to the database(supa base)
+private fun sendActionToSupabase(action: ToiletAction) {
+    CoroutineScope(Dispatchers.IO).launch {
+        try {
+            val response = Supabase.client
+                .from("toilet_actions")
+                .insert(listOf(action)) {
+                    select()
+                }
+
+            Log.d("Supabase", "Insert response: $response")
+        } catch (e: Exception) {
+            Log.e("Supabase", "Erreur d’enregistrement: ${e.message}")
+        }
     }
 }
