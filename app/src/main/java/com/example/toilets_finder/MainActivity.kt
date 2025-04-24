@@ -37,13 +37,15 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        // Clear the previous data from the data store to avoid duplicates
         ToiletDataStore.toiletList.clear()
 
+        // Initialize the UI elements
         loadingProgressBar = findViewById<ProgressBar>(R.id.loadingProgressBar)
         loadingProgressText = findViewById<TextView>(R.id.loadingProgressTextView)
         viewMapButton = findViewById<Button>(R.id.mapButton)
 
-
+        // Set the viewMapButton actions
         viewMapButton.setOnClickListener(View.OnClickListener {
             loadingProgressBar.visibility = View.VISIBLE
             loadingProgressText.visibility = View.VISIBLE
@@ -56,7 +58,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Create the 7 API URLs we need.
-    // The API can only provide data 100 results by 100, so for 623 results we need 7 requests
+    // (The API can only provide data 100 results by 100, so for 623 results we need 7 requests)
     private fun fetchAllToiletsData() {
         for (i in 0 until totalRequests) {
             val apiUrl =
