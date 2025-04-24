@@ -20,14 +20,15 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:cardCornerRadius="20dp">
+        app:cardCornerRadius="26dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="500dp"
             tools:context=".MarkerInfoBottomSheet">
 
             <!-- Image de la toilette -->
+
             <ImageView
                 android:id="@+id/bottom_sheet_image"
                 android:layout_width="140dp"
@@ -74,38 +75,58 @@
                 android:id="@+id/bottom_sheet_navigation"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="10dp"
                 android:text="Obtenir l'itinéraire"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/bottom_sheet_address" />
 
             <RatingBar
-                android:id="@+id/bottom_sheet_rating"
+                android:id="@+id/bottom_sheet_averagerating"
+                style="@style/Widget.AppCompat.RatingBar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="4dp"
                 android:numStars="5"
-                android:rating="3"
+                android:progressBackgroundTint="#C8C7C9"
+                android:progressTint="#FFEB3B"
+                android:rating="0.5"
                 android:stepSize="0.5"
                 app:layout_constraintHorizontal_bias="0.497"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"></LinearLayout>
+                app:layout_constraintTop_toBottomOf="@+id/bottom_sheet_averagerating_label" />
 
             <TextView
-                android:id="@+id/textView"
+                android:id="@+id/bottom_sheet_averagerating_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Votre note :"
-                app:layout_constraintStart_toStartOf="@+id/bottom_sheet_rating"
+                android:layout_marginTop="24dp"
+                android:text="Note moyenne :"
+                app:layout_constraintStart_toStartOf="@+id/bottom_sheet_averagerating"
                 app:layout_constraintTop_toBottomOf="@+id/bottom_sheet_navigation" />
+
+            <RatingBar
+                android:id="@+id/bottom_sheet_yourrating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:numStars="5"
+                android:progressTint="#FFEB3B"
+                android:rating="0.5"
+                android:stepSize="0.5"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/bottom_sheet_yourrating_label" />
+
+            <TextView
+                android:id="@+id/bottom_sheet_yourrating_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Votre note :"
+                app:layout_constraintStart_toStartOf="@+id/bottom_sheet_yourrating"
+                app:layout_constraintTop_toBottomOf="@+id/bottom_sheet_averagerating" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>

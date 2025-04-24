@@ -89,8 +89,12 @@ class MainActivity : AppCompatActivity() {
                             val lat = geoPoint.getDouble("lat")
                             val lon = geoPoint.getDouble("lon")
                             val address = record.getString("adresse")
+                            val type = "Type de toilette non précisé"
+                            val imageSrc = R.drawable.ic_toilet_marker
+                            val averageRating = 3.5f
+                            val yourRating = 0f
 
-                            ToiletDataStore.toiletList.add(Triple(lat, lon, address))
+                            ToiletDataStore.toiletList.add(Toilet(lat, lon, address, type, imageSrc, averageRating, yourRating))
                         }
                         else {
                             println("Record $i doesn't have geo_point_2d")

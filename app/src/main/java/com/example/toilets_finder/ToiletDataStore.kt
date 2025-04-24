@@ -1,6 +1,17 @@
 package com.example.toilets_finder
 
-// create an object to store the toilets data fetched from the API
+data class Toilet(
+    val latitude: Double,
+    val longitude: Double,
+    val address: String,
+    val type: String,
+    val imageSrc: Int,
+    val averageRating: Float,
+    val yourRating: Float
+)
+
+
+// Create an object to store the toilets data fetched from the API and the project database
 object ToiletDataStore {
-    val toiletList = mutableListOf<Triple<Double, Double, String>>() // lat, lon, address
+    val toiletList = mutableListOf<Toilet>()
 }

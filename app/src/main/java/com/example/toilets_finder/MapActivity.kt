@@ -106,7 +106,7 @@ class MapActivity : AppCompatActivity(), LocationListener {
         }
     }
 
-    // Update the map with the new user's position, based on his coordinates
+    // Update the map with the new user's position, based on its current coordinates
     private fun updateMapLocation(latitude: Double, longitude: Double) {
         // By default the coordinates are the center of Paris
         // If you want the true coordinates of your device, replace DEFAULT_LATITUDE and DEFAULT_LONGITUDE by latitude and longitude
@@ -114,7 +114,7 @@ class MapActivity : AppCompatActivity(), LocationListener {
         map.controller.setZoom(15.0)
         map.controller.setCenter(userPoint)
 
-        // Remove the last user position marker
+        // Remove the last user's position marker
         map.overlays.removeAll { it is Marker && it.title == "You are here" }
 
         val userMarker = Marker(map)
@@ -155,24 +155,42 @@ class MapActivity : AppCompatActivity(), LocationListener {
     // Adds on the map markers for all the toilets, from the data stored in ToiletDataStore
     private fun addAllToiletsMarkers() {
         for (toilet in ToiletDataStore.toiletList) {
-            val lat = toilet.first
-            val lon = toilet.second
-            val address = toilet.third
-            addToiletMarker(lat, lon, address)
+            val lat = toilet.latitude
+            val lon = toilet.longitude
+            val address = toilet.address
+            addToiletMarker(toilet)
         }
     }
 
 
     // Adds a marker on the map with the latitude and longitude in params.
     // Change the base icon of the marker with a custom icon and resize it.
-    private fun addToiletMarker(lat: Double, lon: Double, address: String) {
+    private fun addToiletMarker(toilet: Toilet) {
         val toiletMarker = Marker(map)
-        toiletMarker.position = GeoPoint(lat, lon)
-        toiletMarker.title = address
+        toiletMarker.position = GeoPoint(toilet.latitude, toilet.longitude)
+        toiletMarker.title = toilet.address
 
         val customIcon = ContextCompat.getDrawable(this, R.drawable.ic_toilet_marker) as BitmapDrawable
         val resizedIcon = customIcon.bitmap.scale(35, 58, false)
         toiletMarker.icon = resizedIcon.toDrawable(resources)
+
+        // Asslocier l'objet Toilet au marker, utile pour gérer les fenêtres d'informations
+        toiletMarker.relatedObject = toilet
+
+        toiletMarker.setOnMarkerClickListener { clickedMarker, _ ->
+            val clickedToilet = clickedMarker.relatedObject as Toilet
+
+            val bottomSheet = MarkerInfoBottomSheet(
+                imageSrc = clickedToilet.imageSrc,
+                type = clickedToilet.type,
+                address = clickedToilet.address,
+                //navigationUrl = "",
+                averageRating = clickedToilet.averageRating,
+                yourRating = clickedToilet.yourRating)
+            bottomSheet.show(supportFragmentManager, "marker_info")
+            true
+        }
+
 
         map.overlays.add(toiletMarker)
     }
