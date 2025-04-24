@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigation.setOnNavigationItemSelectedListener {
             when (it.itemId) {
-                R.id.ic_home -> makeCurrentFragment(homeFragment)
+                //R.id.ic_home -> makeCurrentFragment(homeFragment)
                 R.id.ic_map -> makeCurrentFragment(loadFragment)
                 R.id.ic_settings -> makeCurrentFragment(settingsFragment)
             }

@@ -9,33 +9,6 @@
     <org.osmdroid.views.MapView
         android:id="@+id/map"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="64dp" />
-
-    <LinearLayout
-        android:id="@+id/bottomNav"
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:layout_gravity="bottom"
-        android:background="@color/white"
-        android:orientation="horizontal"
-        android:padding="8dp"
-        android:elevation="4dp">
-
-        <ImageView
-            android:id="@+id/menuButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:padding="8dp" />
-
-        <ImageView
-            android:id="@+id/mapButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:padding="8dp"
-            android:visibility="visible" />
-    </LinearLayout>
+        android:layout_height="wrap_content" />
 
 </FrameLayout>
