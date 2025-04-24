@@ -115,12 +115,12 @@ class MapActivity : AppCompatActivity(), LocationListener {
         map.controller.setCenter(userPoint)
 
         // Remove the last user's position marker
-        map.overlays.removeAll { it is Marker && it.title == "You are here" }
+        map.overlays.removeAll { it is Marker && it.title == "Vous êtes ici" }
 
         val userMarker = Marker(map)
         userMarker.position = userPoint
         userMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-        userMarker.title = "You are here"
+        userMarker.title = "Vous êtes ici"
         map.overlays.add(userMarker)
     }
 
@@ -155,6 +155,7 @@ class MapActivity : AppCompatActivity(), LocationListener {
     // Adds on the map markers for all the toilets, from the data stored in ToiletDataStore
     private fun addAllToiletsMarkers() {
         for (toilet in ToiletDataStore.toiletList) {
+            val id = toilet.id
             val lat = toilet.latitude
             val lon = toilet.longitude
             val address = toilet.address
@@ -168,15 +169,17 @@ class MapActivity : AppCompatActivity(), LocationListener {
     private fun addToiletMarker(toilet: Toilet) {
         val toiletMarker = Marker(map)
         toiletMarker.position = GeoPoint(toilet.latitude, toilet.longitude)
-        toiletMarker.title = toilet.address
+
 
         val customIcon = ContextCompat.getDrawable(this, R.drawable.ic_toilet_marker) as BitmapDrawable
         val resizedIcon = customIcon.bitmap.scale(35, 58, false)
         toiletMarker.icon = resizedIcon.toDrawable(resources)
 
-        // Asslocier l'objet Toilet au marker, utile pour gérer les fenêtres d'informations
+        // Bind the Toilet object to the marker so we can retrieve it later
         toiletMarker.relatedObject = toilet
 
+        // Retrieve the Toilet object we attached to the marker, when the latter is clicked
+        // Then create the bottom sheet with the toilet informations
         toiletMarker.setOnMarkerClickListener { clickedMarker, _ ->
             val clickedToilet = clickedMarker.relatedObject as Toilet
 
@@ -184,7 +187,8 @@ class MapActivity : AppCompatActivity(), LocationListener {
                 imageSrc = clickedToilet.imageSrc,
                 type = clickedToilet.type,
                 address = clickedToilet.address,
-                //navigationUrl = "",
+                openingHours = clickedToilet.openingHours,
+                pmrAccess = clickedToilet.pmrAccess,
                 averageRating = clickedToilet.averageRating,
                 yourRating = clickedToilet.yourRating)
             bottomSheet.show(supportFragmentManager, "marker_info")

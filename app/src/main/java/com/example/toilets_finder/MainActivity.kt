@@ -26,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewMapButton: Button
     private var totalRequests = 7
     private var responsesReceived = 0
+    private var toiletId = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,16 +86,20 @@ class MainActivity : AppCompatActivity() {
                         val record = records.getJSONObject(i)
 
                         if (!record.isNull("geo_point_2d")) {
+                            val id = toiletId++
+                            println("Toilette numéro : " + id)
                             val geoPoint = record.getJSONObject("geo_point_2d")
                             val lat = geoPoint.getDouble("lat")
                             val lon = geoPoint.getDouble("lon")
-                            val address = record.getString("adresse")
-                            val type = "Type de toilette non précisé"
-                            val imageSrc = R.drawable.ic_toilet_marker
+                            val address = "Adresse : " + record.getString("adresse") + ", " + record.getString("arrondissement")
+                            val pmrAccess = "Accès PMR : " + record.getString("acces_pmr")
+                            val type = record.getString("type")
+                            val imageSrc = R.drawable.icon
+                            val openingHours = "Horaires: " + record.getString("horaire")
                             val averageRating = 3.5f
                             val yourRating = 0f
 
-                            ToiletDataStore.toiletList.add(Toilet(lat, lon, address, type, imageSrc, averageRating, yourRating))
+                            ToiletDataStore.toiletList.add(Toilet(id, lat, lon, address, type, imageSrc, openingHours, pmrAccess, averageRating, yourRating))
                         }
                         else {
                             println("Record $i doesn't have geo_point_2d")

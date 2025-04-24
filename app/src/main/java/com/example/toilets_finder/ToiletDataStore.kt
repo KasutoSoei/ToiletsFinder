@@ -1,11 +1,14 @@
 package com.example.toilets_finder
 
 data class Toilet(
+    val id: Int,
     val latitude: Double,
     val longitude: Double,
     val address: String,
     val type: String,
     val imageSrc: Int,
+    val openingHours: String,
+    val pmrAccess: String,
     val averageRating: Float,
     val yourRating: Float
 )
