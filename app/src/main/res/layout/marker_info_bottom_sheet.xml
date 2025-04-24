@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:context=".MarkerInfoBottomSheet">
+
+    <!-- Image de la toilette -->
+
+    <!-- Type de toilette -->
+
+    <!-- Adresse de la toilette -->
+
+    <!-- Bouton pour afficher l'itinéraire -->
+
+    <!-- Rating Bar pour la notation -->
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:cardCornerRadius="26dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="413dp"
+            android:paddingRight="10dp"
+            tools:context=".MarkerInfoBottomSheet">
+
+            <!-- Image de la toilette -->
+
+            <!-- Type de toilette -->
+
+            <!-- Adresse de la toilette -->
+
+            <!-- Bouton pour afficher l'itinéraire -->
+
+            <!-- Rating Bar pour la notation -->
+
+            <ImageView
+                android:id="@+id/bottom_sheet_image"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_launcher_background"
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/bottom_sheet_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Chiottes publiques"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/bottom_sheet_image"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/bottom_sheet_address"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="12dp"
+                android:text="Adresse : 10 rue du Paf"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/bottom_sheet_image"
+                app:layout_constraintTop_toBottomOf="@+id/bottom_sheet_type" />
+
+            <RatingBar
+                android:id="@+id/bottom_sheet_averagerating"
+                style="@style/Widget.AppCompat.RatingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:numStars="5"
+                android:progressBackgroundTint="#C8C7C9"
+                android:progressTint="#FFEB3B"
+                android:rating="0.5"
+                android:stepSize="0.5"
+                app:layout_constraintHorizontal_bias="0.497"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/bottom_sheet_averagerating_label" />
+
+            <TextView
+                android:id="@+id/bottom_sheet_averagerating_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="36dp"
+                android:text="Note moyenne :"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="@+id/bottom_sheet_averagerating"
+                app:layout_constraintTop_toBottomOf="@+id/bottom_sheet_image" />
+
+            <RatingBar
+                android:id="@+id/bottom_sheet_yourrating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:numStars="5"
+                android:progressBackgroundTint="#C0BFC1"
+                android:progressTint="#FFEB3B"
+                android:rating="0.5"
+                android:stepSize="0.5"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/bottom_sheet_yourrating_label" />
+
+            <TextView
+                android:id="@+id/bottom_sheet_yourrating_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Votre note :"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="@+id/bottom_sheet_yourrating"
+                app:layout_constraintTop_toBottomOf="@+id/bottom_sheet_averagerating" />
+
+            <TextView
+                android:id="@+id/bottom_sheet_pmraccess"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Accès PMR : OUI"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="@+id/bottom_sheet_openinghours"
+                app:layout_constraintTop_toBottomOf="@+id/bottom_sheet_openinghours" />
+
+            <TextView
+                android:id="@+id/bottom_sheet_openinghours"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="8dp"
+                android:text="Horaires : 9h - 22h"
+                android:textSize="16sp"
+                app:layout_constraintStart_toEndOf="@+id/bottom_sheet_image"
+                app:layout_constraintTop_toBottomOf="@+id/bottom_sheet_address" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+</LinearLayout>
