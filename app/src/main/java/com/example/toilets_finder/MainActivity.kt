@@ -87,14 +87,23 @@ class MainActivity : AppCompatActivity() {
 
                         if (!record.isNull("geo_point_2d")) {
                             val id = toiletId++
-                            println("Toilette numéro : " + id)
+                            println("Toilette n° : " + id)
                             val geoPoint = record.getJSONObject("geo_point_2d")
                             val lat = geoPoint.getDouble("lat")
                             val lon = geoPoint.getDouble("lon")
                             val address = "Adresse : " + record.getString("adresse") + ", " + record.getString("arrondissement")
                             val pmrAccess = "Accès PMR : " + record.getString("acces_pmr")
                             val type = record.getString("type")
-                            val imageSrc = R.drawable.icon
+                            val imageSrc: Int;
+                            if (type == "SANISETTE" || type == "WC PUBLICS PERMANENTS") {
+                                imageSrc = R.drawable.sanisette
+                            }
+                            else if (type == "TOILETTES"){
+                                imageSrc = R.drawable.toilette
+                            }
+                            else {
+                                imageSrc = R.drawable.urinoir
+                            }
                             val openingHours = "Horaires: " + record.getString("horaire")
                             val averageRating = 3.5f
                             val yourRating = 0f
