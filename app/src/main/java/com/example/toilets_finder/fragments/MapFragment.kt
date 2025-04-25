@@ -16,7 +16,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.scale
 import androidx.fragment.app.Fragment
+import com.example.toilets_finder.MarkerInfoBottomSheet
 import com.example.toilets_finder.R
+import com.example.toilets_finder.Toilet
 import org.osmdroid.config.Configuration
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
@@ -89,14 +91,15 @@ class MapFragment : Fragment(), LocationListener {
         val userPoint = GeoPoint(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
         map.controller.setZoom(18.0)
         map.controller.setCenter(userPoint)
+
         // Remove the previous "You are here" marker
-        map.overlays.removeAll { it is Marker && it.title == "You are here" }
+        map.overlays.removeAll { it is Marker && it.title == "Vous êtes ici" }
 
         // Add a new marker for the user's current location
         val userMarker = Marker(map)
         userMarker.position = userPoint
         userMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-        userMarker.title = "You are here"
+        userMarker.title = "Vous êtes ici"
         map.overlays.add(userMarker)
     }
 
@@ -128,22 +131,42 @@ class MapFragment : Fragment(), LocationListener {
     // Add markers for all toilets from ToiletDataStore
     private fun addAllToiletsMarkers() {
         for (toilet in com.example.toilets_finder.ToiletDataStore.toiletList) {
-            val lat = toilet.first
-            val lon = toilet.second
-            val address = toilet.third
-            addToiletMarker(lat, lon, address)
+            val id = toilet.id
+            val lat = toilet.latitude
+            val lon = toilet.longitude
+            val address = toilet.address
+            addToiletMarker(toilet)
         }
     }
 
     // Add a toilet marker to the map with custom resized icon
-    private fun addToiletMarker(lat: Double, lon: Double, address: String) {
+    private fun addToiletMarker(toilet: Toilet) {
         val toiletMarker = Marker(map)
-        toiletMarker.position = GeoPoint(lat, lon)
-        toiletMarker.title = address
+        toiletMarker.position = GeoPoint(toilet.latitude, toilet.longitude)
 
         val customIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_toilet_marker) as BitmapDrawable
         val resizedIcon = customIcon.bitmap.scale(35, 58, false)
         toiletMarker.icon = resizedIcon.toDrawable(resources)
+
+        // Bind the Toilet object to the marker so we can retrieve it later
+        toiletMarker.relatedObject = toilet
+
+        // Retrieve the Toilet object we attached to the marker, when the latter is clicked
+        // Then create the bottom sheet with the toilet informations
+        toiletMarker.setOnMarkerClickListener { clickedMarker, _ ->
+            val clickedToilet = clickedMarker.relatedObject as Toilet
+
+            val bottomSheet = MarkerInfoBottomSheet(
+                imageSrc = clickedToilet.imageSrc,
+                type = clickedToilet.type,
+                address = clickedToilet.address,
+                openingHours = clickedToilet.openingHours,
+                pmrAccess = clickedToilet.pmrAccess,
+                averageRating = clickedToilet.averageRating,
+                yourRating = clickedToilet.yourRating)
+            bottomSheet.show(parentFragmentManager, "marker_info")
+            true
+        }
 
         map.overlays.add(toiletMarker)
     }

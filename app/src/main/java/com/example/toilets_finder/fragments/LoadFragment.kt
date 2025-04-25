@@ -12,6 +12,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import com.example.toilets_finder.R
+import com.example.toilets_finder.Toilet
 import com.example.toilets_finder.ToiletDataStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,6 +29,7 @@ class LoadFragment : Fragment() {
     private lateinit var viewMapButton: Button
     private var totalRequests = 7
     private var responsesReceived = 0
+    private var toiletId = 1
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -78,13 +80,34 @@ class LoadFragment : Fragment() {
 
                     for (i in 0 until records.length()) {
                         val record = records.getJSONObject(i)
+
                         if (!record.isNull("geo_point_2d")) {
+                            val id = toiletId++
+                            println("Toilette n° : " + id)
                             val geoPoint = record.getJSONObject("geo_point_2d")
                             val lat = geoPoint.getDouble("lat")
                             val lon = geoPoint.getDouble("lon")
-                            val address = record.getString("adresse")
+                            val address = "Adresse : " + record.getString("adresse") + ", " + record.getString("arrondissement")
+                            val pmrAccess = "Accès PMR : " + record.getString("acces_pmr")
+                            val type = record.getString("type")
+                            val imageSrc: Int;
+                            if (type == "SANISETTE" || type == "WC PUBLICS PERMANENTS") {
+                                imageSrc = R.drawable.sanisette
+                            }
+                            else if (type == "TOILETTES"){
+                                imageSrc = R.drawable.toilette
+                            }
+                            else {
+                                imageSrc = R.drawable.urinoir
+                            }
+                            val openingHours = "Horaires: " + record.getString("horaire")
+                            val averageRating = 3.5f
+                            val yourRating = 0f
 
-                            ToiletDataStore.toiletList.add(Triple(lat, lon, address))
+                            ToiletDataStore.toiletList.add(Toilet(id, lat, lon, address, type, imageSrc, openingHours, pmrAccess, averageRating, yourRating))
+                        }
+                        else {
+                            println("Record $i doesn't have geo_point_2d")
                         }
                     }
 
