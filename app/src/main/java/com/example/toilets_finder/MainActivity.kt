@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity() {
         val loadFragment = LoadFragment()
 
         makeCurrentFragment(loadFragment)
+        Supabase.init()
 
         val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigation.setOnNavigationItemSelectedListener {
