@@ -1,5 +1,7 @@
 package com.example.toilets_finder.fragments
 
+import io.github.jan.supabase.postgrest.from
+
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager

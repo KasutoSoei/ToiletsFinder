@@ -41,20 +41,9 @@ class TempMapActivity : AppCompatActivity(), LocationListener {
     private val DEFAULT_LATITUDE = 48.8566
     private val DEFAULT_LONGITUDE = 2.3522
 
-    //
-
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_map)
-
-        // get the "Back" button, for going back to the home
-        val buttonBack: Button = findViewById(R.id.backButton)
-        buttonBack.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-        }
+        //setContentView(R.layout.activity_map)
 
         // Configuration of the map
         Configuration.getInstance().userAgentValue = packageName
@@ -170,65 +159,64 @@ class TempMapActivity : AppCompatActivity(), LocationListener {
         }
     }
 
+    private fun fetchToiletData(apiUrl: String) {
 
-//    private fun fetchToiletData(apiUrl: String) {
-//
-//        CoroutineScope(Dispatchers.IO).launch {
-//            try {
-//                val url = URL(apiUrl)
-//                val connection = url.openConnection() as HttpURLConnection
-//                connection.requestMethod = "GET"
-//
-//                if (connection.responseCode == 200) {
-//                    val response = connection.inputStream.bufferedReader().use { it.readText() }
-//                    val jsonResponse = JSONObject(response)
-//                    val records = jsonResponse.getJSONArray("results")
-//
-//                    val totalCount = jsonResponse.optInt("total_count", -1)
-//                    Log.d("API_DEBUG", "✅ Total available toilets in API: $totalCount from URL: $apiUrl")
-//
-//
-//                    val toilets = mutableListOf<ToiletInfo>()
-//
-//                    withContext(Dispatchers.Main) {
-//                        for (i in 0 until records.length()) {
-//                            val record = records.getJSONObject(i)
-//                            val geoPoint = record.getJSONObject("geo_point_2d")
-//
-//                            val lat = geoPoint.getDouble("lat")
-//                            val lon = geoPoint.getDouble("lon")
-//                            val address = record.getString("adresse")
-//                            val type = record.getString("type")
-//                            val horaire = record.getString("horaire")
-//                            val pmr = record.getString("acces_pmr") == "Oui"
-//                            val bebe = record.getString("relais_bebe") == "Oui"
-//                            val fiche = record.getString("url_fiche_equipement")
-//
-//
-//                            // Create ToiletInfo object
-//                            val toilet = ToiletInfo(
-//                                type = type,
-//                                address = address,
-//                                schedule = horaire,
-//                                pmrAccess = pmr,
-//                                babyRelay = bebe,
-//                                ficheUrl = fiche,
-//                                location = GeoPoint2D(lat = lat, lon = lon),
-//                            )
-//
-//                            // Send to Supabase
-//                            toilets.add(toilet)
-//                            addToiletMarker(lat, lon, address)
-//                        }
-//                    }
-//                    // Insert toilets in Supabase (batched)
-//                    //sendToiletsBatchToSupabase(toilets)
-//                }
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//            }
-//        }
-//    }
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val url = URL(apiUrl)
+                val connection = url.openConnection() as HttpURLConnection
+                connection.requestMethod = "GET"
+
+                if (connection.responseCode == 200) {
+                    val response = connection.inputStream.bufferedReader().use { it.readText() }
+                    val jsonResponse = JSONObject(response)
+                    val records = jsonResponse.getJSONArray("results")
+
+                    val totalCount = jsonResponse.optInt("total_count", -1)
+                    Log.d("API_DEBUG", "✅ Total available toilets in API: $totalCount from URL: $apiUrl")
+
+
+                    val toilets = mutableListOf<ToiletInfo>()
+
+                    withContext(Dispatchers.Main) {
+                        for (i in 0 until records.length()) {
+                            val record = records.getJSONObject(i)
+                            val geoPoint = record.getJSONObject("geo_point_2d")
+
+                            val lat = geoPoint.getDouble("lat")
+                            val lon = geoPoint.getDouble("lon")
+                            val address = record.getString("adresse")
+                            val type = record.getString("type")
+                            val horaire = record.getString("horaire")
+                            val pmr = record.getString("acces_pmr") == "Oui"
+                            val bebe = record.getString("relais_bebe") == "Oui"
+                            val fiche = record.getString("url_fiche_equipement")
+
+
+                            // Create ToiletInfo object
+                            val toilet = ToiletInfo(
+                                type = type,
+                                address = address,
+                                schedule = horaire,
+                                pmrAccess = pmr,
+                                babyRelay = bebe,
+                                ficheUrl = fiche,
+                                location = GeoPoint2D(lat = lat, lon = lon),
+                            )
+
+                            // Send to Supabase
+                            toilets.add(toilet)
+                            addToiletMarker(lat, lon, address)
+                        }
+                    }
+                    // Insert toilets in Supabase (batched)
+                    // sendToiletsBatchToSupabase(toilets)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 
     private fun fetchToiletsFromSupabase() {
         CoroutineScope(Dispatchers.IO).launch {
@@ -254,38 +242,30 @@ class TempMapActivity : AppCompatActivity(), LocationListener {
         }
     }
 
-
-
-
-
-
     //show an overlay that allow us to save data in the database (supabase)
-//    private fun showToiletActionsDialog(toiletId: String) {
-//
-//        val options = arrayOf("Ajouter aux favoris", "Blacklister", "Noter", "Commenter")
-//        val selected = BooleanArray(options.size)
-//
-//        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
-//        builder.setTitle("Toilette : $toiletId")
-//
-//        builder.setMultiChoiceItems(options, selected) { _, index, isChecked ->
-//            selected[index] = isChecked
-//        }
-//
-//        builder.setPositiveButton("") { _, _ ->
-//
-//
-//
-//
-//            Toast.makeText(this, "Action enregistrée !", Toast.LENGTH_SHORT).show()
-//        }
-//
-//
-//        builder.show()
-//    }
+    private fun showToiletActionsDialog(toiletId: String) {
+
+        val options = arrayOf("Ajouter aux favoris", "Blacklister", "Noter", "Commenter")
+        val selected = BooleanArray(options.size)
+
+        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
+        builder.setTitle("Toilette : $toiletId")
+
+        builder.setMultiChoiceItems(options, selected) { _, index, isChecked ->
+            selected[index] = isChecked
+        }
+
+        builder.setPositiveButton("") { _, _ ->
 
 
 
+
+            Toast.makeText(this, "Action enregistrée !", Toast.LENGTH_SHORT).show()
+        }
+
+
+        builder.show()
+    }
 
     // Add a marker on the map with the latitude and longitude in params.
     // Change the base icon of the marker for a custom icon ans resize it.
@@ -310,30 +290,30 @@ class TempMapActivity : AppCompatActivity(), LocationListener {
 }
 
 //send the data of the overlay to the database(supa base)
-//private fun sendToiletsBatchToSupabase(toilets: List<ToiletInfo>) {
-//    CoroutineScope(Dispatchers.IO).launch {
-//        try {
-//            val chunkSize = 100
-//            for (chunk in toilets.chunked(chunkSize)) {
-//                try {
-//                    Supabase.client
-//                        .from("toilets")
-//                        .upsert(chunk) {
-//                             //onConflict = "location"
-//                            // ignoreDuplicates = true
-//                            select()
-//                        }
-//                    Log.d("Supabase", "Inserted batch of ${chunk.size} toilets.")
-//                    delay(500) // respect API rate limits
-//                } catch (e: Exception) {
-//                    Log.e("Supabase", "Batch insert failed: ${e.message}")
-//                }
-//            }
-//        } catch (e: Exception) {
-//            Log.e("Supabase", "Erreur d’enregistrement: ${e.message}")
-//        }
-//    }
-//}
+private fun sendToiletsBatchToSupabase(toilets: List<ToiletInfo>) {
+    CoroutineScope(Dispatchers.IO).launch {
+        try {
+            val chunkSize = 100
+            for (chunk in toilets.chunked(chunkSize)) {
+                try {
+                    Supabase.client
+                        .from("toilets")
+                        .upsert(chunk) {
+                             //onConflict = "location"
+                            // ignoreDuplicates = true
+                            select()
+                        }
+                    Log.d("Supabase", "Inserted batch of ${chunk.size} toilets.")
+                    delay(500) // respect API rate limits
+                } catch (e: Exception) {
+                    Log.e("Supabase", "Batch insert failed: ${e.message}")
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("Supabase", "Erreur d’enregistrement: ${e.message}")
+        }
+    }
+}
 
 
 
