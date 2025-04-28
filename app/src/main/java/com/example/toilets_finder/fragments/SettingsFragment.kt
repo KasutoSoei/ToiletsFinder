@@ -15,6 +15,8 @@ import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Serializer
 import java.util.UUID
 
 class SettingsFragment : Fragment() {
@@ -53,7 +55,7 @@ class SettingsFragment : Fragment() {
             val password = passwordEditText.text.toString()
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
-                loginUser(email)
+                loginUser(email, password)
                 Toast.makeText(requireContext(), "Connexion de $email", Toast.LENGTH_SHORT).show()
                 dialog.dismiss()
             } else {
@@ -94,26 +96,45 @@ class SettingsFragment : Fragment() {
         dialog.show()
     }
 
-    private fun loginUser(email: String) {
+    private fun loginUser(email: String, password: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response = Supabase.client
                     .from("users")
-                    .select()
-                    //.eq("email", email)
+                    .select {
+                        filter {
+                            eq("email", email)
+                        }
+                    }
                     .decodeSingle<User>()
 
-                CoroutineScope(Dispatchers.Main).launch {
-                    Toast.makeText(requireContext(), "Bienvenue ${response.name} !", Toast.LENGTH_SHORT).show()
-                }
 
+                if (response.password == password) {
+                    val sharedPref = requireContext().getSharedPreferences("MyAppPrefs", android.content.Context.MODE_PRIVATE)
+                    with(sharedPref.edit()) {
+                        putString("user_id", response.id)
+                        apply()
+                        val sharedPref = requireContext().getSharedPreferences("MyAppPrefs", android.content.Context.MODE_PRIVATE)
+                        val userId = sharedPref.getString("user_id", null)
+                        println(userId)
+                    }
+
+                    CoroutineScope(Dispatchers.Main).launch {
+                        println("Bienvenue ${response.email} !")
+                    }
+                } else {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        println("Mot de passe incorrect")
+                    }
+                }
             } catch (e: Exception) {
                 CoroutineScope(Dispatchers.Main).launch {
-                    Toast.makeText(requireContext(), "Utilisateur non trouvé ou erreur: ${e.message}", Toast.LENGTH_SHORT).show()
+                    println("Utilisateur non trouvé ou erreur: ${e.message}")
                 }
             }
         }
     }
+
 
     private fun registerUser(email: String, password: String) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -139,7 +160,11 @@ class SettingsFragment : Fragment() {
         }
     }
 }
+
+@Serializable
 data class User(
-    val name: String,
-    val email: String
+    val id: String,
+    val name: String? = null,
+    val email: String,
+    val password: String
 )

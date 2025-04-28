@@ -7,11 +7,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.toilets_finder.fragments.HomeFragment
 import com.example.toilets_finder.fragments.LoadFragment
-import com.example.toilets_finder.fragments.MapFragment
 import com.example.toilets_finder.fragments.SettingsFragment
 
 class MainActivity : AppCompatActivity() {
 
+    var userId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,7 +22,8 @@ class MainActivity : AppCompatActivity() {
         val settingsFragment = SettingsFragment()
         val loadFragment = LoadFragment()
 
-        makeCurrentFragment(loadFragment)
+        userId = getId()
+        if (userId == null) makeCurrentFragment(settingsFragment) else makeCurrentFragment(loadFragment)
         Supabase.init()
 
         val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
@@ -41,4 +42,11 @@ class MainActivity : AppCompatActivity() {
             replace(R.id.fl_wrapper, fragment)
             commit()
         }
+
+
+    private fun getId():String? {
+        val sharedPref = this.getSharedPreferences("MyAppPrefs", android.content.Context.MODE_PRIVATE)
+        return sharedPref.getString("user_id", null)
+    }
+
 }
