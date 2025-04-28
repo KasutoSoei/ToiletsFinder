@@ -15,7 +15,8 @@ object Supabase {
         client = createSupabaseClient(
             supabaseUrl = "https://zxhcldwajyevprifqwya.supabase.co",
             supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4aGNsZHdhanlldnByaWZxd3lhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ3ODc3NDIsImV4cCI6MjA2MDM2Mzc0Mn0.UGSc0Y3oDPWqpd8RrQFZAlphG3dvjz7iTxdKxtV0u0E"
-        ) {
+        )
+        {
             defaultSerializer = KotlinXSerializer(Json {
                 ignoreUnknownKeys = true
                 prettyPrint = true

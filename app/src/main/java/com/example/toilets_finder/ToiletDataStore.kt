@@ -10,7 +10,8 @@ data class Toilet(
     val openingHours: String,
     val pmrAccess: String,
     val averageRating: Float,
-    val yourRating: Float
+    val yourRating: Float,
+    val ficheUrl: String
 )
 
 

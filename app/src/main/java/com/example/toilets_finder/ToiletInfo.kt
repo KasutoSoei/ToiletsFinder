@@ -24,7 +24,7 @@ data class ToiletInfo(
     val schedule: String,
 
     @SerialName("acces_pmr")
-    val pmrAccess: Boolean? = null,
+    val pmrAccess: Boolean?,
 
     @SerialName("relais_bebe")
     val babyRelay: Boolean? = null,

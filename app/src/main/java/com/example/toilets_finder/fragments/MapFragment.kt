@@ -165,7 +165,8 @@ class MapFragment : Fragment(), LocationListener {
                 openingHours = clickedToilet.openingHours,
                 pmrAccess = clickedToilet.pmrAccess,
                 averageRating = clickedToilet.averageRating,
-                yourRating = clickedToilet.yourRating)
+                yourRating = clickedToilet.yourRating,
+                ficheURL = clickedToilet.ficheUrl)
             bottomSheet.show(parentFragmentManager, "marker_info")
             true
         }

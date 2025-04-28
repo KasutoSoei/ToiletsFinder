@@ -83,7 +83,7 @@ class LoadFragment : Fragment() {
                         val lat = toilet.location.lat
                         val lon = toilet.location.lon
                         val address = toilet.address
-                        val pmrAccess = "Accès PMR : " + toilet.pmrAccess
+                        val pmrAccess = "Accès PMR : " + (toilet.pmrAccess ?: "non")
                         val type = toilet.type
                         val imageSrc: Int = when (type) {
                             "SANISETTE", "WC PUBLICS PERMANENTS" -> R.drawable.sanisette
@@ -93,6 +93,8 @@ class LoadFragment : Fragment() {
                         val openingHours = "Horaires: " + toilet.schedule
                         val averageRating = 3.5f
                         val yourRating = 0f
+                        val ficheURL = toilet.ficheUrl
+                        println(ficheURL)
 
                         ToiletDataStore.toiletList.add(
                             Toilet(
@@ -105,7 +107,8 @@ class LoadFragment : Fragment() {
                                 openingHours,
                                 pmrAccess,
                                 averageRating,
-                                yourRating
+                                yourRating,
+                                ficheURL
                             )
                         )
                     }
@@ -173,6 +176,7 @@ class LoadFragment : Fragment() {
                                             "Horaires: " + record.getString("horaire")
                                         val averageRating = 3.5f
                                         val yourRating = 0f
+                                        val ficheURL = "google.com"
 
                                         ToiletDataStore.toiletList.add(
                                             Toilet(
@@ -185,7 +189,8 @@ class LoadFragment : Fragment() {
                                                 openingHours,
                                                 pmrAccess,
                                                 averageRating,
-                                                yourRating
+                                                yourRating,
+                                                ficheURL
                                             )
                                         )
                                     } else {
