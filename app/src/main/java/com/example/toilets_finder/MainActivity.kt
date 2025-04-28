@@ -5,7 +5,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.example.toilets_finder.fragments.HomeFragment
 import com.example.toilets_finder.fragments.LoadFragment
 import com.example.toilets_finder.fragments.SettingsFragment
 
@@ -18,7 +17,6 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        val homeFragment = HomeFragment()
         val settingsFragment = SettingsFragment()
         val loadFragment = LoadFragment()
 
@@ -29,7 +27,6 @@ class MainActivity : AppCompatActivity() {
         val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigation.setOnNavigationItemSelectedListener {
             when (it.itemId) {
-                //R.id.ic_home -> makeCurrentFragment(homeFragment)
                 R.id.ic_map -> makeCurrentFragment(loadFragment)
                 R.id.ic_settings -> makeCurrentFragment(settingsFragment)
             }

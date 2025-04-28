@@ -10,6 +10,7 @@ import com.example.toilets_finder.R
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import android.widget.EditText
 import android.widget.Toast
+import com.example.toilets_finder.MainActivity
 import com.example.toilets_finder.Supabase
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.CoroutineScope
@@ -29,6 +30,17 @@ class SettingsFragment : Fragment() {
 
         val btnLogin = view.findViewById<Button>(R.id.btn_login)
         val btnRegister = view.findViewById<Button>(R.id.btn_register)
+        val btnLogout = view.findViewById<Button>(R.id.btn_logout)
+
+        val userId = (requireActivity() as MainActivity).userId
+
+        if (userId != null) {
+            btnLogout.visibility = View.VISIBLE
+            btnLogin.visibility = View.GONE
+            btnRegister.visibility = View.GONE
+        } else {
+            btnLogout.visibility = View.GONE
+        }
 
         btnLogin.setOnClickListener {
             showLoginDialog()
@@ -36,6 +48,10 @@ class SettingsFragment : Fragment() {
 
         btnRegister.setOnClickListener {
             showRegisterDialog()
+        }
+
+        btnLogout.setOnClickListener {
+            logoutUser()
         }
 
         return view
@@ -114,14 +130,16 @@ class SettingsFragment : Fragment() {
                     with(sharedPref.edit()) {
                         putString("user_id", response.id)
                         apply()
-                        val sharedPref = requireContext().getSharedPreferences("MyAppPrefs", android.content.Context.MODE_PRIVATE)
-                        val userId = sharedPref.getString("user_id", null)
-                        println(userId)
                     }
 
                     CoroutineScope(Dispatchers.Main).launch {
-                        println("Bienvenue ${response.email} !")
+                        Toast.makeText(requireContext(), "Connexion réussie", Toast.LENGTH_SHORT).show()
+
+                        val intent = requireActivity().intent
+                        requireActivity().finish()
+                        startActivity(intent)
                     }
+
                 } else {
                     CoroutineScope(Dispatchers.Main).launch {
                         println("Mot de passe incorrect")
@@ -135,20 +153,30 @@ class SettingsFragment : Fragment() {
         }
     }
 
-
     private fun registerUser(email: String, password: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
+                val id = UUID.randomUUID().toString()
                 Supabase.client
                     .from("users")
                     .insert(mapOf(
-                        "id" to UUID.randomUUID().toString(),
+                        "id" to id,
                         "email" to email,
                         "password" to password
                     ))
 
                 CoroutineScope(Dispatchers.Main).launch {
-                    Toast.makeText(requireContext(), "Inscription réussie pour $email !", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Inscription réussie $email !", Toast.LENGTH_SHORT).show()
+
+                    val sharedPref = requireContext().getSharedPreferences("MyAppPrefs", android.content.Context.MODE_PRIVATE)
+                    with(sharedPref.edit()) {
+                        putString("user_id", id)
+                        apply()
+                    }
+
+                    val intent = requireActivity().intent
+                    requireActivity().finish()
+                    startActivity(intent)
                 }
 
             } catch (e: Exception) {
@@ -159,6 +187,21 @@ class SettingsFragment : Fragment() {
             }
         }
     }
+
+    private fun logoutUser() {
+        val sharedPref = requireContext().getSharedPreferences("MyAppPrefs", android.content.Context.MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            remove("user_id")
+            apply()
+        }
+        Toast.makeText(requireContext(), "Déconnexion réussie", Toast.LENGTH_SHORT).show()
+
+        // Redémarrer MainActivity pour tout réinitialiser
+        val intent = requireActivity().intent
+        requireActivity().finish()
+        startActivity(intent)
+    }
+
 }
 
 @Serializable
