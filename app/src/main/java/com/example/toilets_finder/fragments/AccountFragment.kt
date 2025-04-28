@@ -9,6 +9,7 @@ import android.widget.Button
 import com.example.toilets_finder.R
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import com.example.toilets_finder.MainActivity
 import com.example.toilets_finder.Supabase
@@ -17,7 +18,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Serializer
 import java.util.UUID
 
 class SettingsFragment : Fragment() {
@@ -26,11 +26,12 @@ class SettingsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_settings, container, false)
+        val view = inflater.inflate(R.layout.fragment_account, container, false)
 
         val btnLogin = view.findViewById<Button>(R.id.btn_login)
         val btnRegister = view.findViewById<Button>(R.id.btn_register)
         val btnLogout = view.findViewById<Button>(R.id.btn_logout)
+        val textEmail = view.findViewById<TextView>(R.id.text_email)
 
         val userId = (requireActivity() as MainActivity).userId
 
@@ -38,6 +39,7 @@ class SettingsFragment : Fragment() {
             btnLogout.visibility = View.VISIBLE
             btnLogin.visibility = View.GONE
             btnRegister.visibility = View.GONE
+            textEmail.visibility = View.GONE
         } else {
             btnLogout.visibility = View.GONE
         }
@@ -135,9 +137,7 @@ class SettingsFragment : Fragment() {
                     CoroutineScope(Dispatchers.Main).launch {
                         Toast.makeText(requireContext(), "Connexion réussie", Toast.LENGTH_SHORT).show()
 
-                        val intent = requireActivity().intent
-                        requireActivity().finish()
-                        startActivity(intent)
+                        reloadApp()
                     }
 
                 } else {
@@ -174,9 +174,7 @@ class SettingsFragment : Fragment() {
                         apply()
                     }
 
-                    val intent = requireActivity().intent
-                    requireActivity().finish()
-                    startActivity(intent)
+                    reloadApp()
                 }
 
             } catch (e: Exception) {
@@ -196,12 +194,14 @@ class SettingsFragment : Fragment() {
         }
         Toast.makeText(requireContext(), "Déconnexion réussie", Toast.LENGTH_SHORT).show()
 
-        // Redémarrer MainActivity pour tout réinitialiser
+        reloadApp()
+    }
+
+    private fun reloadApp() {
         val intent = requireActivity().intent
         requireActivity().finish()
         startActivity(intent)
     }
-
 }
 
 @Serializable
