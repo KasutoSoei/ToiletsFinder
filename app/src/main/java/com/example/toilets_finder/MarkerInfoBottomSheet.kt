@@ -35,8 +35,8 @@ class MarkerInfoBottomSheet(
         savedInstanceState: Bundle?
     ): View? {
 
-        // Inflate sert à créer une View à partir du layout marker_info_bottom_sheet
-        // Container (le parent de la View qu'on crée) est définit à false car la fenêtre d'informations du marker est fermée au début ( = la View n'est pas encore ajoutée au parent)
+        // Inflate sert à créer une View à partir d'un layout, en l'occurence marker_info_bottom_sheet
+        // container (le parent de la View qu'on crée) est définit à false car la fenêtre d'informations est fermée au début ( = la View n'est pas encore ajoutée au parent)
         val view = inflater.inflate(R.layout.marker_info_bottom_sheet, container, false)
 
         val image: ImageView = view.findViewById(R.id.bottom_sheet_image)
@@ -55,10 +55,9 @@ class MarkerInfoBottomSheet(
         pmrAccess.text = this.pmrAccess
         averageRatingBar.rating = averageRating
         yourRatingBar.rating = yourRating
-        println(ficheURL)
 
         if (ficheURL != "null") {
-            println(ficheURL)
+            println("fiche URL" + ficheURL)
             val spannableString = SpannableString("Voir fiche équipement")
             val clickableSpan = object : ClickableSpan() {
                 override fun onClick(widget: View) {
@@ -69,9 +68,15 @@ class MarkerInfoBottomSheet(
             spannableString.setSpan(clickableSpan, 0, spannableString.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             openingHours.text = spannableString
             openingHours.movementMethod = LinkMovementMethod.getInstance()
-        } else {
+        }
+        else if (openingHours.text == "Horaires: null"){
+            openingHours.text = "Horaires: Pas de données"
+        }
+        else {
             openingHours.text = this.openingHours
         }
+
+
 
         return view
     }

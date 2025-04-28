@@ -5,7 +5,6 @@ import io.github.jan.supabase.postgrest.from
 
 import android.Manifest
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.Bitmap
@@ -14,7 +13,6 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -233,11 +231,11 @@ class TempMapActivity : AppCompatActivity(), LocationListener {
                         val address = toilet.address
                         addToiletMarker(lat, lon, address)
                     }
-                    Log.d("SUPABASE_FETCH", "✅ Loaded ${response.size} toilets from Supabase.")
+                    Log.d("SUPABASE_FETCH", "Loaded ${response.size} toilets from Supabase.")
                 }
 
             } catch (e: Exception) {
-                Log.e("SUPABASE_FETCH", "❌ Failed to fetch toilets: ${e.message}")
+                Log.e("SUPABASE_FETCH", "Failed to fetch toilets: ${e.message}")
             }
         }
     }
@@ -278,7 +276,7 @@ class TempMapActivity : AppCompatActivity(), LocationListener {
         val resizedIcon = Bitmap.createScaledBitmap(customIcon.bitmap, 35, 58, false)
         toiletMarker.icon = BitmapDrawable(resources, resizedIcon)
         toiletMarker.setOnMarkerClickListener { marker, _ ->
-            val toiletId = address
+            //val toiletId = address
 
             //showToiletActionsDialog(toiletId)
             true

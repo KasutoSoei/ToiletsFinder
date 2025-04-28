@@ -83,7 +83,7 @@ class LoadFragment : Fragment() {
                         val lat = toilet.location.lat
                         val lon = toilet.location.lon
                         val address = toilet.address
-                        val pmrAccess = "Accès PMR : " + (toilet.pmrAccess ?: "non")
+                        val pmrAccess = "Accès PMR: " + if (toilet.pmrAccess == true) "Oui" else "Non"
                         val type = toilet.type
                         val imageSrc: Int = when (type) {
                             "SANISETTE", "WC PUBLICS PERMANENTS" -> R.drawable.sanisette

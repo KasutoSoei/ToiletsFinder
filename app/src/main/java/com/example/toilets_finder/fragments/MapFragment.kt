@@ -90,7 +90,7 @@ class MapFragment : Fragment(), LocationListener {
 
     private fun updateMapLocation(latitude: Double, longitude: Double) {
         // Replace lat and long by DEFAULT_LATITUDE and DEFAULT_LONGITUDE if you are on a emulator
-        val userPoint = GeoPoint(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
+        val userPoint = GeoPoint(latitude, longitude)
         map.controller.setZoom(18.0)
         map.controller.setCenter(userPoint)
 
