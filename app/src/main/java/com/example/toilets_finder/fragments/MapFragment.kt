@@ -1,7 +1,5 @@
 package com.example.toilets_finder.fragments
 
-import io.github.jan.supabase.postgrest.from
-
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
@@ -90,7 +88,7 @@ class MapFragment : Fragment(), LocationListener {
 
     private fun updateMapLocation(latitude: Double, longitude: Double) {
         // Replace lat and long by DEFAULT_LATITUDE and DEFAULT_LONGITUDE if you are on a emulator
-        val userPoint = GeoPoint(latitude, longitude)
+        val userPoint = GeoPoint(DEFAULT_LATITUDE, DEFAULT_LONGITUDE)
         map.controller.setZoom(18.0)
         map.controller.setCenter(userPoint)
 

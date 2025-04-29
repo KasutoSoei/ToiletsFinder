@@ -5,10 +5,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
@@ -18,13 +16,12 @@ import com.example.toilets_finder.Toilet
 import com.example.toilets_finder.ToiletDataStore
 import com.example.toilets_finder.ToiletInfo
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.json.JSONObject
-import java.net.HttpURLConnection
-import java.net.URL
+import kotlinx.serialization.Serializable
 
 class LoadFragment : Fragment() {
 
@@ -77,6 +74,7 @@ class LoadFragment : Fragment() {
                     .decodeList<ToiletInfo>()
 
                 withContext(Dispatchers.Main) {
+                    val averageRatingMap = getAverageRating()
                     response.forEach { toilet ->
                         val id = toilet.id
                         val lat = toilet.location.lat
@@ -90,7 +88,7 @@ class LoadFragment : Fragment() {
                             else -> R.drawable.urinoir
                         }
                         val openingHours = "Horaires: " + toilet.schedule
-                        val averageRating = 3.7f
+                        val averageRating = averageRatingMap.getOrDefault(id, 0.0)
                         val yourRating = 0f
                         val ficheURL = toilet.ficheUrl
 
@@ -132,102 +130,44 @@ class LoadFragment : Fragment() {
             }
         }
     }
+    suspend fun getAverageRating(): Map<String, Double> {
+        return try {
+            withContext(Dispatchers.IO) {
+                val response = Supabase.client
+                    .from("reviews")
+                    .select(columns = Columns.list("toilet_id", "rating"))
+                    .decodeList<ToiletRating>()
 
+                // Calculer la moyenne des notes par toilette manuellement
+                val ratingsMap = response.groupBy { it.toilet_id }
+                    .mapValues { entry ->
+                        val ratings = entry.value.map { it.rating }
+                        if (ratings.isNotEmpty()) {
+                            var sum = 0.0
+                            var count = 0
 
-//    private fun fetchToiletData(apiUrl: String) {
-//                    CoroutineScope(Dispatchers.IO).launch {
-//                        try {
-//                            val url = URL(apiUrl)
-//                            val connection = url.openConnection() as HttpURLConnection
-//                            connection.requestMethod = "GET"
-//
-//                            if (connection.responseCode == 200) {
-//                                val response =
-//                                    connection.inputStream.bufferedReader().use { it.readText() }
-//                                val jsonResponse = JSONObject(response)
-//                                val records = jsonResponse.getJSONArray("results")
-//
-//                                for (i in 0 until records.length()) {
-//                                    val record = records.getJSONObject(i)
-//
-//                                    if (!record.isNull("geo_point_2d")) {
-//                                        val geoPoint = record.getJSONObject("geo_point_2d")
-//                                        val lat = geoPoint.getDouble("lat")
-//                                        val lon = geoPoint.getDouble("lon")
-//                                        val address =
-//                                            "Adresse : " + record.getString("adresse") + ", " + record.getString(
-//                                                "arrondissement"
-//                                            )
-//                                        val pmrAccess =
-//                                            "Accès PMR : " + record.getString("acces_pmr")
-//                                        val type = record.getString("type")
-//                                        val imageSrc: Int;
-//                                        if (type == "SANISETTE" || type == "WC PUBLICS PERMANENTS") {
-//                                            imageSrc = R.drawable.sanisette
-//                                        } else if (type == "TOILETTES") {
-//                                            imageSrc = R.drawable.toilette
-//                                        } else {
-//                                            imageSrc = R.drawable.urinoir
-//                                        }
-//                                        val openingHours =
-//                                            "Horaires: " + record.getString("horaire")
-//                                        val averageRating = 3.5f
-//                                        val yourRating = 0f
-//                                        val ficheURL = "google.com"
-//
-//                                        ToiletDataStore.toiletList.add(
-//                                            Toilet(
-//                                                id,
-//                                                lat,
-//                                                lon,
-//                                                address,
-//                                                type,
-//                                                imageSrc,
-//                                                openingHours,
-//                                                pmrAccess,
-//                                                averageRating,
-//                                                yourRating,
-//                                                ficheURL
-//                                            )
-//                                        )
-//                                    } else {
-//                                        println("Record $i doesn't have geo_point_2d")
-//                                    }
-//                                }
-//
-//                                withContext(Dispatchers.Main) {
-//                                    responsesReceived++
-//                                    val progress = (responsesReceived * 100) / totalRequests
-//                                    loadingProgressBar.progress = progress
-//                                    loadingProgressText.text = "Map loading : $progress%"
-//
-//                                    if (responsesReceived == totalRequests) {
-//                                        activity?.let {
-//                                            parentFragmentManager.beginTransaction()
-//                                                .replace(R.id.fl_wrapper, MapFragment())
-//                                                .addToBackStack(null)
-//                                                .commit()
-//                                        }
-//                                    }
-//                                }
-//                            } else {
-//                                withContext(Dispatchers.Main) {
-//                                    Toast.makeText(context, "Connection error", Toast.LENGTH_SHORT)
-//                                        .show()
-//                                }
-//                            }
-//                        } catch (e: Exception) {
-//                            e.printStackTrace()
-//                            withContext(Dispatchers.Main) {
-//                                Toast.makeText(
-//                                    context,
-//                                    "Error while fetching data",
-//                                    Toast.LENGTH_SHORT
-//                                ).show()
-//                            }
-//                        }
-//                    }
-//                }
-
+                            for (rating in ratings) {
+                                if (rating != null) {
+                                    sum += rating
+                                }
+                                count++
+                            }
+                            sum / count
+                        } else {
+                            0.0
+                        }
+                    }
+                ratingsMap
+            }
+        } catch (e: Exception) {
+            Log.e("SUPABASE_FETCH", "Erreur pendant le calcul des moyennes des ratings: ${e.message}")
+            emptyMap()
+        }
+    }
 }
 
+@Serializable
+data class ToiletRating(
+    val toilet_id: String,
+    val rating: Double? = null
+)

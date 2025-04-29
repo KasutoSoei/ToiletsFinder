@@ -29,7 +29,7 @@ class MarkerInfoBottomSheet(
     private val address: String,
     private val openingHours: String,
     private val pmrAccess: String,
-    private var averageRating: Float,
+    private var averageRating: Double,
     private var yourRating: Float,
     private val ficheURL: String,
 ) : BottomSheetDialogFragment()  {
@@ -59,7 +59,7 @@ class MarkerInfoBottomSheet(
         address.text = this.address
         openingHours.text = this.openingHours
         pmrAccess.text = this.pmrAccess
-        averageRatingBar.rating = averageRating
+        averageRatingBar.rating = averageRating.toFloat()
         yourRatingBar.rating = yourRating
 
         if (ficheURL != "null") {
@@ -87,7 +87,6 @@ class MarkerInfoBottomSheet(
             if (userId != null) {
                 yourRating = rating
                 yourRatingBar.rating = rating
-                println("Note changée à: $rating")
                 saveRatingToDatabase(toiletId, userId, yourRating)
             }
             else {
@@ -108,11 +107,16 @@ class MarkerInfoBottomSheet(
                 user_id = userId,
                 rating = rating
             )
+
             Supabase.client
                 .from("reviews")
-                .insert(entry)
+                .upsert(entry){
+                    onConflict = "user_id,toilet_id"
+                    select()
+                }
         }
     }
+
 }
 
 @Serializable
