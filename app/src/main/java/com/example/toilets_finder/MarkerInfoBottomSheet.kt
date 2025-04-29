@@ -30,7 +30,7 @@ class MarkerInfoBottomSheet(
     private val openingHours: String,
     private val pmrAccess: String,
     private var averageRating: Double,
-    private var yourRating: Float,
+    private var yourRating: Double,
     private val ficheURL: String,
 ) : BottomSheetDialogFragment()  {
 
@@ -60,7 +60,7 @@ class MarkerInfoBottomSheet(
         openingHours.text = this.openingHours
         pmrAccess.text = this.pmrAccess
         averageRatingBar.rating = averageRating.toFloat()
-        yourRatingBar.rating = yourRating
+        yourRatingBar.rating = yourRating.toFloat()
 
         if (ficheURL != "null") {
             println("fiche URL" + ficheURL)
@@ -85,7 +85,7 @@ class MarkerInfoBottomSheet(
         yourRatingBar.setOnRatingBarChangeListener { _, rating, _ ->
             val userId = (requireActivity() as MainActivity).userId
             if (userId != null) {
-                yourRating = rating
+                yourRating = rating.toDouble()
                 yourRatingBar.rating = rating
                 saveRatingToDatabase(toiletId, userId, yourRating)
             }
@@ -98,7 +98,7 @@ class MarkerInfoBottomSheet(
         return view
     }
 
-    private fun saveRatingToDatabase(toiletId: String, userId: String, rating: Float) {
+    private fun saveRatingToDatabase(toiletId: String, userId: String, rating: Double) {
         CoroutineScope(Dispatchers.IO).launch {
             val id = UUID.randomUUID().toString()
             val entry = RatingEntry(
@@ -124,7 +124,7 @@ data class RatingEntry(
     val id: String,
     val toilet_id: String,
     val user_id: String,
-    val rating: Float
+    val rating: Double
 )
 
 

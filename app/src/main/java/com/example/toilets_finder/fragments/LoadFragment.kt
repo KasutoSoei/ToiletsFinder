@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
+import com.example.toilets_finder.MainActivity
 import com.example.toilets_finder.R
 import com.example.toilets_finder.Supabase
 import com.example.toilets_finder.Toilet
@@ -19,6 +20,7 @@ import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -27,7 +29,7 @@ class LoadFragment : Fragment() {
 
     private lateinit var loadingProgressBar: ProgressBar
     private lateinit var loadingProgressText: TextView
-    private var totalRequests = 1
+    private var totalRequests = 0
     private var responsesReceived = 0
 
     override fun onCreateView(
@@ -72,9 +74,13 @@ class LoadFragment : Fragment() {
                     .from("toilets")
                     .select()
                     .decodeList<ToiletInfo>()
+                totalRequests = response.size
 
                 withContext(Dispatchers.Main) {
+
                     val averageRatingMap = getAverageRating()
+                    val userRatingsMap = getAllUserRatings()
+
                     response.forEach { toilet ->
                         val id = toilet.id
                         val lat = toilet.location.lat
@@ -89,7 +95,7 @@ class LoadFragment : Fragment() {
                         }
                         val openingHours = "Horaires: " + toilet.schedule
                         val averageRating = averageRatingMap.getOrDefault(id, 0.0)
-                        val yourRating = 0f
+                        val yourRating = userRatingsMap.getOrDefault(id, 0.0)
                         val ficheURL = toilet.ficheUrl
 
                         ToiletDataStore.toiletList.add(
@@ -107,22 +113,23 @@ class LoadFragment : Fragment() {
                                 ficheURL
                             )
                         )
-                    }
 
-                    responsesReceived++
-                    println(responsesReceived)
-                    val progress = (responsesReceived * 100) / totalRequests
-                    loadingProgressBar.progress = progress
-                    loadingProgressText.text = "Map loading : $progress%"
+                        responsesReceived++
+                        delay(1)
+                        println(responsesReceived)
+                        val progress = (responsesReceived * 100) / totalRequests
+                        loadingProgressBar.progress = progress
+                        loadingProgressText.text = "Map loading : $progress%"
 
-                    if (responsesReceived == totalRequests) {
-                        activity?.let {
-                            parentFragmentManager.beginTransaction()
-                                .replace(R.id.fl_wrapper, MapFragment())
-                                .addToBackStack(null)
-                                .commit()
+                        if (responsesReceived == totalRequests) {
+                            activity?.let {
+                                parentFragmentManager.beginTransaction()
+                                    .replace(R.id.fl_wrapper, MapFragment())
+                                    .addToBackStack(null)
+                                    .commit()
+                            }
+                            Log.d("SUPABASE_FETCH", "Loaded ${response.size} toilets from Supabase.")
                         }
-                        Log.d("SUPABASE_FETCH", "Loaded ${response.size} toilets from Supabase.")
                     }
                 }
             } catch (e: Exception) {
@@ -164,6 +171,28 @@ class LoadFragment : Fragment() {
             emptyMap()
         }
     }
+
+    private suspend fun getAllUserRatings(): Map<String, Double> {
+        val userId = (requireActivity() as MainActivity).userId
+        return try {
+            val response = Supabase.client
+                .from("reviews")
+                .select {
+                    filter {
+                        if (userId != null) {
+                            eq("user_id", userId)
+                        }
+                    }
+                }
+                .decodeList<ToiletRating>()
+
+            response.associate { it.toilet_id to (it.rating ?: 0.0) }
+        } catch (e: Exception) {
+            Log.e("SUPABASE_FETCH", "Erreur récupération notes utilisateur: ${e.message}")
+            emptyMap()
+        }
+    }
+
 }
 
 @Serializable
