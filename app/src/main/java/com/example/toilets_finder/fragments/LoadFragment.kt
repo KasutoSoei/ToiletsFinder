@@ -94,7 +94,6 @@ class LoadFragment : Fragment() {
                         val averageRating = 3.5f
                         val yourRating = 0f
                         val ficheURL = toilet.ficheUrl
-                        println(ficheURL)
 
                         ToiletDataStore.toiletList.add(
                             Toilet(
