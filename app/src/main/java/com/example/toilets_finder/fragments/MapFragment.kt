@@ -59,6 +59,9 @@ class MapFragment : Fragment(), LocationListener {
 
         // Map initialization
         map = view.findViewById(R.id.map)
+        map.setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.DEFAULT_TILE_SOURCE)
+        map.setMultiTouchControls(true)
+        map.invalidate()
 
         // Check location permission, if not granted, request it
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
