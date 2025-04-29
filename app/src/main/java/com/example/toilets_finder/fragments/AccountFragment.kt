@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import java.util.UUID
 
-class SettingsFragment : Fragment() {
+class AccountFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

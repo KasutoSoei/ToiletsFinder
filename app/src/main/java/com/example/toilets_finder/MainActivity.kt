@@ -6,7 +6,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.toilets_finder.fragments.LoadFragment
-import com.example.toilets_finder.fragments.SettingsFragment
+import com.example.toilets_finder.fragments.AccountFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,18 +17,18 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        val settingsFragment = SettingsFragment()
+        val accountFragment = AccountFragment()
         val loadFragment = LoadFragment()
 
         userId = getId()
-        if (userId == null) makeCurrentFragment(settingsFragment) else makeCurrentFragment(loadFragment)
+        if (userId == null) makeCurrentFragment(accountFragment) else makeCurrentFragment(loadFragment)
         Supabase.init()
 
         val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigation.setOnNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.ic_map -> makeCurrentFragment(loadFragment)
-                R.id.ic_account -> makeCurrentFragment(settingsFragment)
+                R.id.ic_account -> makeCurrentFragment(accountFragment)
             }
             true
         }
