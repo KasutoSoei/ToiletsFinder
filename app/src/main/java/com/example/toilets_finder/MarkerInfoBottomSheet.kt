@@ -24,8 +24,8 @@ class MarkerInfoBottomSheet(
     private val openingHours: String,
     private val pmrAccess: String,
     //private val navigationUrl: String,
-    private val averageRating: Float,
-    private val yourRating: Float,
+    private var averageRating: Float,
+    private var yourRating: Float,
     private val ficheURL: String,
 ) : BottomSheetDialogFragment()  {
 
@@ -38,7 +38,6 @@ class MarkerInfoBottomSheet(
         // Inflate sert à créer une View à partir d'un layout, en l'occurence marker_info_bottom_sheet
         // container (le parent de la View qu'on crée) est définit à false car la fenêtre d'informations est fermée au début ( = la View n'est pas encore ajoutée au parent)
         val view = inflater.inflate(R.layout.marker_info_bottom_sheet, container, false)
-
         val image: ImageView = view.findViewById(R.id.bottom_sheet_image)
         val type: TextView = view.findViewById(R.id.bottom_sheet_type)
         val address: TextView = view.findViewById(R.id.bottom_sheet_address)
@@ -76,6 +75,11 @@ class MarkerInfoBottomSheet(
             openingHours.text = this.openingHours
         }
 
+        yourRatingBar.setOnRatingBarChangeListener { _, rating, _ ->
+            yourRating = rating
+            yourRatingBar.rating = rating
+            println("Note changée à: $rating")
+        }
 
 
         return view
