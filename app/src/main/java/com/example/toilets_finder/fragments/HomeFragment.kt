@@ -17,6 +17,7 @@ class HomeFragment : Fragment() {
     private lateinit var loadingProgressBar: ProgressBar
     private lateinit var loadingProgressText: TextView
     private lateinit var viewMapButton: Button
+
     private var totalRequests = 7
     private var responsesReceived = 0
 

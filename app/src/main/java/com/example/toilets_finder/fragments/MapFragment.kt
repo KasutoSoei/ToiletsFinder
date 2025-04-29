@@ -13,6 +13,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toDrawable
@@ -25,6 +27,15 @@ import org.osmdroid.config.Configuration
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import android.text.Editable
+import android.text.TextWatcher
+
+
+private lateinit var searchEditText: EditText
+private lateinit var filterButton: ImageButton
+private var filterByType: String? = null
+private var filterByPmr: Boolean? = null
+
 
 class MapFragment : Fragment(), LocationListener {
 
@@ -58,6 +69,26 @@ class MapFragment : Fragment(), LocationListener {
         } else {
             requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQUEST_CODE)
         }
+
+        //verify every search bar input
+        searchEditText = view.findViewById(R.id.searchEditText)
+        searchEditText.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                val query = s.toString().trim()
+                filterToilets(query)
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
+        //show the dialog when the filter button is clicked
+        filterButton = view.findViewById(R.id.filterButton)
+        filterButton.setOnClickListener {
+            showFilterDialog()
+        }
+
+
 
         // Add all toilet markers to the map
         addAllToiletsMarkers()
@@ -141,6 +172,14 @@ class MapFragment : Fragment(), LocationListener {
         }
     }
 
+    // dynamically search and filter
+    private fun updateMarkers(filteredList: List<Toilet>) {
+        map.overlays.clear()
+        for (toilet in filteredList) {
+            addToiletMarker(toilet)
+        }
+    }
+
     // Add a toilet marker to the map with custom resized icon
     private fun addToiletMarker(toilet: Toilet) {
         val toiletMarker = Marker(map)
@@ -173,4 +212,50 @@ class MapFragment : Fragment(), LocationListener {
 
         map.overlays.add(toiletMarker)
     }
+
+    //chack the the corresponding filter in the data base
+    private fun filterToilets(searchQuery: String = "") {
+        val filteredList = com.example.toilets_finder.ToiletDataStore.toiletList.filter { toilet ->
+            val matchesAddress = toilet.address.contains(searchQuery, ignoreCase = true)
+            val matchesType = filterByType?.let { toilet.type.equals(it, ignoreCase = true) } ?: true
+            val matchesPmr = filterByPmr?.let { toilet.pmrAccess.contains("Oui", ignoreCase = true) == it } ?: true
+            matchesAddress && matchesType && matchesPmr
+        }
+        updateMarkers(filteredList)
+    }
+
+    //dialog withe the option
+    private fun showFilterDialog() {
+        val types = arrayOf(
+            "LAVATORY", "SANISETTE", "TOILETTES", "URINOIR", "URINOIR FEMME", "WC PUBLICS PERMANENTS"
+        )
+        val selectedType = BooleanArray(types.size)
+
+        val pmrOptions = arrayOf("Accès PMR uniquement")
+        val selectedPmr = BooleanArray(pmrOptions.size)
+
+        val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        builder.setTitle("Filtres")
+
+        builder.setMultiChoiceItems(types + pmrOptions, BooleanArray(types.size + 1)) { dialog, index, isChecked ->
+            if (index < types.size) {
+                filterByType = if (isChecked) types[index] else null
+            } else {
+                filterByPmr = if (isChecked) true else null
+            }
+        }
+
+        builder.setPositiveButton("Appliquer") { _, _ ->
+            filterToilets(searchEditText.text.toString())
+        }
+        builder.setNegativeButton("Réinitialiser") { _, _ ->
+            filterByType = null
+            filterByPmr = null
+            filterToilets("")
+        }
+        builder.show()
+    }
+
+
+
 }
