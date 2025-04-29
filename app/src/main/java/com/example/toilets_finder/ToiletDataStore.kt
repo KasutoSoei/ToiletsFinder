@@ -1,7 +1,7 @@
 package com.example.toilets_finder
 
 data class Toilet(
-    val id: Int,
+    val id: String,
     val latitude: Double,
     val longitude: Double,
     val address: String,

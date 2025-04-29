@@ -40,7 +40,6 @@ class MainActivity : AppCompatActivity() {
             commit()
         }
 
-
     private fun getId():String? {
         val sharedPref = this.getSharedPreferences("MyAppPrefs", android.content.Context.MODE_PRIVATE)
         return sharedPref.getString("user_id", null)

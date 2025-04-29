@@ -30,10 +30,8 @@ class LoadFragment : Fragment() {
 
     private lateinit var loadingProgressBar: ProgressBar
     private lateinit var loadingProgressText: TextView
-    private lateinit var viewMapButton: Button
     private var totalRequests = 1
     private var responsesReceived = 0
-    private var toiletId = 1
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -80,6 +78,7 @@ class LoadFragment : Fragment() {
 
                 withContext(Dispatchers.Main) {
                     response.forEach { toilet ->
+                        val id = toilet.id
                         val lat = toilet.location.lat
                         val lon = toilet.location.lon
                         val address = toilet.address
@@ -91,13 +90,13 @@ class LoadFragment : Fragment() {
                             else -> R.drawable.urinoir
                         }
                         val openingHours = "Horaires: " + toilet.schedule
-                        val averageRating = 3.5f
+                        val averageRating = 3.7f
                         val yourRating = 0f
                         val ficheURL = toilet.ficheUrl
 
                         ToiletDataStore.toiletList.add(
                             Toilet(
-                                toiletId++,
+                                id,
                                 lat,
                                 lon,
                                 address,
@@ -113,6 +112,7 @@ class LoadFragment : Fragment() {
                     }
 
                     responsesReceived++
+                    println(responsesReceived)
                     val progress = (responsesReceived * 100) / totalRequests
                     loadingProgressBar.progress = progress
                     loadingProgressText.text = "Map loading : $progress%"
@@ -124,111 +124,110 @@ class LoadFragment : Fragment() {
                                 .addToBackStack(null)
                                 .commit()
                         }
-                        Log.d("SUPABASE_FETCH", "✅ Loaded ${response.size} toilets from Supabase.")
+                        Log.d("SUPABASE_FETCH", "Loaded ${response.size} toilets from Supabase.")
                     }
                 }
             } catch (e: Exception) {
-                Log.e("SUPABASE_FETCH", "❌ Failed to fetch toilets: ${e.message}")
+                Log.e("SUPABASE_FETCH", "Failed to fetch toilets: ${e.message}")
             }
         }
     }
 
 
-    private fun fetchToiletData(apiUrl: String) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        try {
-                            val url = URL(apiUrl)
-                            val connection = url.openConnection() as HttpURLConnection
-                            connection.requestMethod = "GET"
+//    private fun fetchToiletData(apiUrl: String) {
+//                    CoroutineScope(Dispatchers.IO).launch {
+//                        try {
+//                            val url = URL(apiUrl)
+//                            val connection = url.openConnection() as HttpURLConnection
+//                            connection.requestMethod = "GET"
+//
+//                            if (connection.responseCode == 200) {
+//                                val response =
+//                                    connection.inputStream.bufferedReader().use { it.readText() }
+//                                val jsonResponse = JSONObject(response)
+//                                val records = jsonResponse.getJSONArray("results")
+//
+//                                for (i in 0 until records.length()) {
+//                                    val record = records.getJSONObject(i)
+//
+//                                    if (!record.isNull("geo_point_2d")) {
+//                                        val geoPoint = record.getJSONObject("geo_point_2d")
+//                                        val lat = geoPoint.getDouble("lat")
+//                                        val lon = geoPoint.getDouble("lon")
+//                                        val address =
+//                                            "Adresse : " + record.getString("adresse") + ", " + record.getString(
+//                                                "arrondissement"
+//                                            )
+//                                        val pmrAccess =
+//                                            "Accès PMR : " + record.getString("acces_pmr")
+//                                        val type = record.getString("type")
+//                                        val imageSrc: Int;
+//                                        if (type == "SANISETTE" || type == "WC PUBLICS PERMANENTS") {
+//                                            imageSrc = R.drawable.sanisette
+//                                        } else if (type == "TOILETTES") {
+//                                            imageSrc = R.drawable.toilette
+//                                        } else {
+//                                            imageSrc = R.drawable.urinoir
+//                                        }
+//                                        val openingHours =
+//                                            "Horaires: " + record.getString("horaire")
+//                                        val averageRating = 3.5f
+//                                        val yourRating = 0f
+//                                        val ficheURL = "google.com"
+//
+//                                        ToiletDataStore.toiletList.add(
+//                                            Toilet(
+//                                                id,
+//                                                lat,
+//                                                lon,
+//                                                address,
+//                                                type,
+//                                                imageSrc,
+//                                                openingHours,
+//                                                pmrAccess,
+//                                                averageRating,
+//                                                yourRating,
+//                                                ficheURL
+//                                            )
+//                                        )
+//                                    } else {
+//                                        println("Record $i doesn't have geo_point_2d")
+//                                    }
+//                                }
+//
+//                                withContext(Dispatchers.Main) {
+//                                    responsesReceived++
+//                                    val progress = (responsesReceived * 100) / totalRequests
+//                                    loadingProgressBar.progress = progress
+//                                    loadingProgressText.text = "Map loading : $progress%"
+//
+//                                    if (responsesReceived == totalRequests) {
+//                                        activity?.let {
+//                                            parentFragmentManager.beginTransaction()
+//                                                .replace(R.id.fl_wrapper, MapFragment())
+//                                                .addToBackStack(null)
+//                                                .commit()
+//                                        }
+//                                    }
+//                                }
+//                            } else {
+//                                withContext(Dispatchers.Main) {
+//                                    Toast.makeText(context, "Connection error", Toast.LENGTH_SHORT)
+//                                        .show()
+//                                }
+//                            }
+//                        } catch (e: Exception) {
+//                            e.printStackTrace()
+//                            withContext(Dispatchers.Main) {
+//                                Toast.makeText(
+//                                    context,
+//                                    "Error while fetching data",
+//                                    Toast.LENGTH_SHORT
+//                                ).show()
+//                            }
+//                        }
+//                    }
+//                }
 
-                            if (connection.responseCode == 200) {
-                                val response =
-                                    connection.inputStream.bufferedReader().use { it.readText() }
-                                val jsonResponse = JSONObject(response)
-                                val records = jsonResponse.getJSONArray("results")
-
-                                for (i in 0 until records.length()) {
-                                    val record = records.getJSONObject(i)
-
-                                    if (!record.isNull("geo_point_2d")) {
-                                        val id = toiletId++
-                                        println("Toilette n° : " + id)
-                                        val geoPoint = record.getJSONObject("geo_point_2d")
-                                        val lat = geoPoint.getDouble("lat")
-                                        val lon = geoPoint.getDouble("lon")
-                                        val address =
-                                            "Adresse : " + record.getString("adresse") + ", " + record.getString(
-                                                "arrondissement"
-                                            )
-                                        val pmrAccess =
-                                            "Accès PMR : " + record.getString("acces_pmr")
-                                        val type = record.getString("type")
-                                        val imageSrc: Int;
-                                        if (type == "SANISETTE" || type == "WC PUBLICS PERMANENTS") {
-                                            imageSrc = R.drawable.sanisette
-                                        } else if (type == "TOILETTES") {
-                                            imageSrc = R.drawable.toilette
-                                        } else {
-                                            imageSrc = R.drawable.urinoir
-                                        }
-                                        val openingHours =
-                                            "Horaires: " + record.getString("horaire")
-                                        val averageRating = 3.5f
-                                        val yourRating = 0f
-                                        val ficheURL = "google.com"
-
-                                        ToiletDataStore.toiletList.add(
-                                            Toilet(
-                                                id,
-                                                lat,
-                                                lon,
-                                                address,
-                                                type,
-                                                imageSrc,
-                                                openingHours,
-                                                pmrAccess,
-                                                averageRating,
-                                                yourRating,
-                                                ficheURL
-                                            )
-                                        )
-                                    } else {
-                                        println("Record $i doesn't have geo_point_2d")
-                                    }
-                                }
-
-                                withContext(Dispatchers.Main) {
-                                    responsesReceived++
-                                    val progress = (responsesReceived * 100) / totalRequests
-                                    loadingProgressBar.progress = progress
-                                    loadingProgressText.text = "Map loading : $progress%"
-
-                                    if (responsesReceived == totalRequests) {
-                                        activity?.let {
-                                            parentFragmentManager.beginTransaction()
-                                                .replace(R.id.fl_wrapper, MapFragment())
-                                                .addToBackStack(null)
-                                                .commit()
-                                        }
-                                    }
-                                }
-                            } else {
-                                withContext(Dispatchers.Main) {
-                                    Toast.makeText(context, "Connection error", Toast.LENGTH_SHORT)
-                                        .show()
-                                }
-                            }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            withContext(Dispatchers.Main) {
-                                Toast.makeText(
-                                    context,
-                                    "Error while fetching data",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
-                    }
-                }
-            }
+}
 

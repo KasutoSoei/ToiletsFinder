@@ -159,6 +159,7 @@ class MapFragment : Fragment(), LocationListener {
             val clickedToilet = clickedMarker.relatedObject as Toilet
 
             val bottomSheet = MarkerInfoBottomSheet(
+                toiletId = clickedToilet.id,
                 imageSrc = clickedToilet.imageSrc,
                 type = clickedToilet.type,
                 address = clickedToilet.address,

@@ -6,24 +6,29 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
-import android.R.bool
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
+import android.widget.Toast
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import io.github.jan.supabase.postgrest.from
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import java.util.UUID
+import kotlinx.serialization.Serializable
 
 class MarkerInfoBottomSheet(
+    private val toiletId: String,
     private val imageSrc: Int,
     private val type: String,
     private val address: String,
     private val openingHours: String,
     private val pmrAccess: String,
-    //private val navigationUrl: String,
     private var averageRating: Float,
     private var yourRating: Float,
     private val ficheURL: String,
@@ -34,6 +39,8 @@ class MarkerInfoBottomSheet(
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        Supabase.init()
 
         // Inflate sert à créer une View à partir d'un layout, en l'occurence marker_info_bottom_sheet
         // container (le parent de la View qu'on crée) est définit à false car la fenêtre d'informations est fermée au début ( = la View n'est pas encore ajoutée au parent)
@@ -76,12 +83,44 @@ class MarkerInfoBottomSheet(
         }
 
         yourRatingBar.setOnRatingBarChangeListener { _, rating, _ ->
-            yourRating = rating
-            yourRatingBar.rating = rating
-            println("Note changée à: $rating")
+            val userId = (requireActivity() as MainActivity).userId
+            if (userId != null) {
+                yourRating = rating
+                yourRatingBar.rating = rating
+                println("Note changée à: $rating")
+                saveRatingToDatabase(toiletId, userId, yourRating)
+            }
+            else {
+                yourRatingBar.rating = 0f
+                Toast.makeText(requireContext(), "Vous devez être connecter pour noter", Toast.LENGTH_LONG).show()
+            }
+
         }
-
-
         return view
     }
+
+    private fun saveRatingToDatabase(toiletId: String, userId: String, rating: Float) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val id = UUID.randomUUID().toString()
+            val entry = RatingEntry(
+                id = id,
+                toilet_id = toiletId,
+                user_id = userId,
+                rating = rating
+            )
+            Supabase.client
+                .from("reviews")
+                .insert(entry)
+        }
+    }
 }
+
+@Serializable
+data class RatingEntry(
+    val id: String,
+    val toilet_id: String,
+    val user_id: String,
+    val rating: Float
+)
+
+

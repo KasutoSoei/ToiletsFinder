@@ -11,6 +11,9 @@ data class ToiletApiResponse(
 @Serializable
 data class ToiletInfo(
 
+    @SerialName("id")
+    val id: String,
+
     @SerialName("location")
     val location: GeoPoint2D,
 
